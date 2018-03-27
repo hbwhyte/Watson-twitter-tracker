@@ -1,4 +1,4 @@
-package twitter.monzo.model;
+package twitter.monzo.model.internal;
 
 public class MonzoResponse {
 
