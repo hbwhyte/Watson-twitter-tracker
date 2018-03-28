@@ -36,9 +36,9 @@ public class WatsonService {
 
         String data =
                 "{\"textToAnalyze\": \"" + textToAnalyze + "\"," +
-                        " \"username\"     : \""+username+"\"," +
-                        " \"password\"     : \""+password+"\"," +
-                        " \"endpoint\"     : \""+endpoint+"\"," +
+                        " \"username\"     : \"" + username + "\"," +
+                        " \"password\"     : \"" + password + "\"," +
+                        " \"endpoint\"     : \"" + endpoint + "\"," +
                         " \"skip_authentication\": \"false\"}";
         JsonParser parser = new JsonParser();
         JsonObject jsonArgs = parser.parse(data).getAsJsonObject();
@@ -81,10 +81,32 @@ public class WatsonService {
             }
         }
         int percentScore = (int) (biggestEmotion.getScore() * 100);
-        String analysis = "This tweet was " + percentScore + "% full of " + biggestEmotion.getTone_name();
+        String analysis = "IBM Watson thinks this tweet was " + percentScore + "% " + emotionFormat(biggestEmotion.getTone_id());
         System.out.println(analysis);
         return analysis;
         // Returns String "This tweet was a little / "" / very angry - Watson rated it 11% angry"
+    }
+
+    public static String emotionFormat(String emotion) {
+        String formattedEmo = emotion;
+        switch (emotion) {
+            case "anger":
+                formattedEmo = "angry :(";
+                break;
+            case "disgust":
+                formattedEmo = "disgusted :(";
+                break;
+            case "fear":
+                formattedEmo = "fearful :(";
+                break;
+            case "joy":
+                formattedEmo = "joyful :)";
+                break;
+            case "sadness":
+                formattedEmo = "sad :(";
+                break;
+        }
+        return formattedEmo;
     }
 
 }

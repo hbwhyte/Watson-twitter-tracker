@@ -21,32 +21,34 @@ public class MonzoController {
 
 
     @RequestMapping(method=RequestMethod.GET, value="/")
-    public JSONObject searchTwitter(@RequestParam(value = "search", defaultValue = "cats") String search) {
-        return monzoService.searchTwitter(search);
+    public String searchTwitter(@RequestParam(value = "search", defaultValue = "cats") String search) {
+        return monzoService.latestTweet(search);
     }
 
     @RequestMapping(method=RequestMethod.GET, value="/list")
-    public List<String> searchTwitterList(@RequestParam(value = "search", defaultValue = "@codingnomads") String search) {
+    public List<String> searchTwitterList(@RequestParam(value = "search", defaultValue = "dogs") String search) {
         return monzoService.searchTwitterList(search);
     }
-
+    // yes this works
     @RequestMapping(method=RequestMethod.POST, value="/watson")
     public WatsonResponse callWatson(@RequestBody String tweet) {
         return watsonService.callWatson(tweet);
     }
-
+    // yes this works
     @RequestMapping(method=RequestMethod.GET, value="/watson")
     public String howEmotional(@RequestParam(value = "tweet") String tweet) {
         return watsonService.emotionAnalyzer(tweet);
     }
 
+    @RequestMapping(method=RequestMethod.GET, value="/analyze")
+    public String analyzeTweet(@RequestParam(value = "search", defaultValue = "monzo") String search) {
+        return monzoService.analyzeTweet(search);
+    }
 
-//    @RequestMapping(method=RequestMethod.GET, value="/watson")
-//    public JsonObject callWatsonGet(@RequestParams String tweet) {
-//        return WatsonService.callWatson(tweet);
-//    }
-
-    //TODO: Map return statement to new Class / object
+    @RequestMapping(method=RequestMethod.POST, value="/analyze")
+    public String postAnalysis(@RequestParam(value = "search", defaultValue = "monzo") String search) {
+        return monzoService.postAnalysis(search);
+    }
 
     //Posts a tweet
     @RequestMapping(method=RequestMethod.POST, value="/")
