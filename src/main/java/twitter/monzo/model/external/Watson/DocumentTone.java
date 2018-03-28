@@ -2,7 +2,7 @@ package twitter.monzo.model.external.Watson;
 
 public class DocumentTone {
 
-    ToneCategory[] tone_categories;
+    private ToneCategory[] tone_categories;
 
     public ToneCategory[] getTone_categories() {
         return tone_categories;

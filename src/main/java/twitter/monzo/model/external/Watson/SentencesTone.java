@@ -2,11 +2,11 @@ package twitter.monzo.model.external.Watson;
 
 public class SentencesTone {
 
-    int sentence_id;
-    int input_from;
-    int input_to;
-    String text;
-    ToneCategory[] tone_categories;
+    private int sentence_id;
+    private int input_from;
+    private int input_to;
+    private String text;
+    private ToneCategory[] tone_categories;
 
     public int getInput_from() {
         return input_from;

@@ -7,10 +7,10 @@ public class Tone {
      * A score less than 0.5 indicates that the tone is unlikely to be perceived in the content;
      * a score greater than 0.75 indicates a high likelihood that the tone is perceived.
      */
-    double score;
+    private double score;
 
-    String tone_id;
-    String tone_name;
+    private String tone_id;
+    private String tone_name;
 
     public double getScore() {
         return score;

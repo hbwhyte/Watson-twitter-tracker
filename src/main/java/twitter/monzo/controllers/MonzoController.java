@@ -35,6 +35,12 @@ public class MonzoController {
         return watsonService.callWatson(tweet);
     }
 
+    @RequestMapping(method=RequestMethod.GET, value="/watson")
+    public String howEmotional(@RequestParam(value = "tweet") String tweet) {
+        return watsonService.emotionAnalyzer(tweet);
+    }
+
+
 //    @RequestMapping(method=RequestMethod.GET, value="/watson")
 //    public JsonObject callWatsonGet(@RequestParams String tweet) {
 //        return WatsonService.callWatson(tweet);

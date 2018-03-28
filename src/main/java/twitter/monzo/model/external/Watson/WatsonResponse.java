@@ -2,8 +2,8 @@ package twitter.monzo.model.external.Watson;
 
 public class WatsonResponse {
 
-    DocumentTone document_tone;
-    SentencesTone[] sentences_tone;
+    private DocumentTone document_tone;
+    private SentencesTone[] sentences_tone;
 
     public DocumentTone getDocument_tone() {
         return document_tone;

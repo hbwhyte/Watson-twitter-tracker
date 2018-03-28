@@ -2,9 +2,9 @@ package twitter.monzo.model.external.Watson;
 
 public class ToneCategory {
 
-    String category_id;
-    String category_name;
-    Tone[] tones;
+    private String category_id;
+    private String category_name;
+    private Tone[] tones;
 
     public String getCategory_id() {
         return category_id;
