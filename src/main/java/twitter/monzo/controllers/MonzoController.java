@@ -1,12 +1,11 @@
 package twitter.monzo.controllers;
 
-import twitter.monzo.model.internal.MonzoResponse;
+import twitter.monzo.model.external.Watson.WatsonResponse;
 import twitter.monzo.services.MonzoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import twitter4j.Status;
-import twitter4j.Twitter;
-import twitter4j.TwitterFactory;
+import twitter.monzo.services.WatsonService;
+import twitter4j.JSONObject;
 
 import java.util.List;
 
@@ -17,16 +16,37 @@ public class MonzoController {
     @Autowired
     MonzoService monzoService;
 
+    @Autowired
+    WatsonService watsonService;
+
+
     @RequestMapping(method=RequestMethod.GET, value="/")
-    public List<Status> searchTwitter(@RequestParam(value = "search", defaultValue = "@monzo") String search) {
-        return MonzoService.searchTwitter(search);
+    public JSONObject searchTwitter(@RequestParam(value = "search", defaultValue = "cats") String search) {
+        return monzoService.searchTwitter(search);
     }
 
-//    @RequestMapping(method=RequestMethod.POST, value="/")
-//    public void updateStatus(@RequestParam(value = "search", defaultValue = "@monzo") String search) {
-//        Twitter twitter = TwitterFactory.getSingleton();
-//        Status status = twitter.updateStatus(latestStatus);
+    @RequestMapping(method=RequestMethod.GET, value="/list")
+    public List<String> searchTwitterList(@RequestParam(value = "search", defaultValue = "@codingnomads") String search) {
+        return monzoService.searchTwitterList(search);
+    }
+
+    @RequestMapping(method=RequestMethod.POST, value="/watson")
+    public WatsonResponse callWatson(@RequestBody String tweet) {
+        return watsonService.callWatson(tweet);
+    }
+
+//    @RequestMapping(method=RequestMethod.GET, value="/watson")
+//    public JsonObject callWatsonGet(@RequestParams String tweet) {
+//        return WatsonService.callWatson(tweet);
 //    }
+
+    //TODO: Map return statement to new Class / object
+
+    //Posts a tweet
+    @RequestMapping(method=RequestMethod.POST, value="/")
+    public String createTweet(@RequestBody String tweet) {
+        return monzoService.createTweet(tweet);
+    }
 
 //    @RequestMapping(method=RequestMethod.GET, value="/")
 //    public String helloTwitter(Model model) {
