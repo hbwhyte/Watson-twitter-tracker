@@ -1,19 +1,24 @@
-package twitter.monzo.services;
+package twitter.services;
 
 
+import com.google.gson.Gson;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import twitter.model.external.Twitter.SearchResult;
 import twitter4j.*;
 import twitter4j.Twitter;
 import twitter4j.conf.ConfigurationBuilder;
+import twitter4j.json.DataObjectFactory;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static twitter.monzo.services.WatsonService.emotionAnalyzer;
-
 @Service
-public class MonzoService {
+public class TwitterService {
+
+    @Autowired
+    WatsonService watsonService;
 
     // Finds the text of the most recent tweet about a search subject
     public static String latestTweet(String search) {
@@ -35,9 +40,9 @@ public class MonzoService {
         return latestTweet;
     }
 
-    public static String analyzeTweet(String search) {
+    public String analyzeTweet(String search) {
         String tweet = latestTweet(search);
-        String tweetAnalysis = emotionAnalyzer(tweet);
+        String tweetAnalysis = watsonService.emotionAnalyzer(tweet);
         return "The most recent tweet about \"" + search + "\" was: \"" + tweet + "\". " + tweetAnalysis;
     }
 
@@ -58,26 +63,30 @@ public class MonzoService {
     public String postAnalysis(String search) {
         String tweet = analyzeTweet(search);
         createTweet(tweet);
-        return tweet;
+        return tweet + " Tweet successfully posted!";
     }
 
     // Searches 10 most recent tweets for a search term and returns a String List
-    public static List<String> searchTwitterList(String search) {
-        Twitter twitter = new TwitterFactory().getInstance();
-        List<String> tweets = null;
-        try {
-            Query query = new Query(search);
-            query.setResultType(Query.ResultType.recent);
-            query.count(10);
-            QueryResult result = twitter.search(query);
-            tweets = result.getTweets().stream().map(item -> item.getText()).collect(Collectors.toList());
-        } catch (TwitterException te) {
-            te.printStackTrace();
-            System.out.println("Failed to search tweets: " + te.getMessage());
-            System.exit(-1);
-        }
-        return tweets;
-    }
+//    public static String searchTwitterList(String search) {
+//        ConfigurationBuilder cb = new ConfigurationBuilder();
+//        cb.setTweetModeExtended(true).setJSONStoreEnabled(true);
+//
+//        Twitter twitter = new TwitterFactory().getInstance();
+//        //SearchResult map = new SearchResult();
+//        try {
+//            Query query = new Query(search);
+//            query.count(10).lang("en").setResultType(Query.ResultType.recent);
+//            QueryResult result = twitter.search(query);
+//            String json = TwitterObjectFactory.getRawJSON(result);
+//
+//            SearchResult response = new Gson().fromJson((json), SearchResult.class);
+//        } catch (TwitterException te) {
+//            te.printStackTrace();
+//            System.out.println("Failed to search tweets: " + te.getMessage());
+//            System.exit(-1);
+//        }
+//        return tweets;
+//    }
 
 //     Returns tweets from my timeline
     public List<Status> getMyTimeLine() throws TwitterException {

@@ -1,4 +1,4 @@
-package twitter.monzo.model.external.Watson;
+package twitter.model.external.Watson;
 
 public class WatsonResponse {
 

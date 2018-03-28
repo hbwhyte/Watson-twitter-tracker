@@ -1,4 +1,4 @@
-package twitter.monzo.model.internal;
+package twitter.model.internal;
 
 public class Statuses {
 

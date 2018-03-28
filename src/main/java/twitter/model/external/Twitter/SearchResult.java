@@ -1,4 +1,4 @@
-package twitter.monzo.model.external.Twitter;
+package twitter.model.external.Twitter;
 
 public class SearchResult {
 
