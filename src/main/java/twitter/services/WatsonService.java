@@ -1,21 +1,20 @@
 package twitter.services;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-
-import com.ibm.watson.developer_cloud.tone_analyzer.v3.ToneAnalyzer;
-import com.ibm.watson.developer_cloud.tone_analyzer.v3.model.ToneAnalysis;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import twitter.model.external.Watson.Tone;
-import twitter.model.external.Watson.WatsonResponse;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.Properties;
+import twitter.model.Watson.Tone;
+import twitter.model.Watson.WatsonResponse;
+
+import org.apache.commons.codec.binary.Base64;
+import java.nio.charset.Charset;
+
 
 @Service
 public class WatsonService {
@@ -27,46 +26,51 @@ public class WatsonService {
     private String password;
     @Value("${watson.username}")
     private String username;
-    @Value("${watson.endpoint}")
-    private String endpoint;
 
-
+    /**
+     * Connects to IBM Watson Tone Analyzer API with authentication grabbed from authorize()
+     *
+     * @param textToAnalyze
+     * @return WatsonResponse mapped object
+     */
     public WatsonResponse callWatson(String textToAnalyze) {
-        System.out.println(endpoint + "endpoint");
-        String data =
-                "{\"textToAnalyze\": \"" + textToAnalyze + "\"," +
-                        " \"username\"     : \"" + username + "\"," +
-                        " \"password\"     : \"" + password + "\"," +
-                        " \"endpoint\"     : \"" + endpoint + "\"," +
-                        " \"skip_authentication\": \"false\"}";
-        JsonParser parser = new JsonParser();
-        JsonObject jsonArgs = parser.parse(data).getAsJsonObject();
-        WatsonResponse response = new Gson().fromJson(toneAnalyzer(jsonArgs).toString(), WatsonResponse.class);
+
+        String fQuery = "https://gateway.watsonplatform.net/tone-analyzer/api/v3/tone?version=2016-05-19&text=" + textToAnalyze;
+
+        ResponseEntity<WatsonResponse> responseEntity
+                = restTemplate.exchange(fQuery, HttpMethod.GET, new HttpEntity<>(authorize(
+                        username,password)), WatsonResponse.class);
+
+        WatsonResponse response = responseEntity.getBody();
+
         return response;
     }
 
-    public JsonObject toneAnalyzer(JsonObject args) {
-        JsonParser parser = new JsonParser();
+    /**
+     * Creates the HTTP Header to authorize the IBM Watson Tone Analyzer API call
+     *
+     * @param username IBM Watson API username
+     * @param password IBM Watson API password
+     * @return HTTPHeaders for authorization
+     */
+    public static HttpHeaders authorize(String username, String password) {
 
-        ToneAnalyzer service = new ToneAnalyzer("2016-05-19");
-        service.setUsernameAndPassword(args.get("username").getAsString(),
-                args.get("password").getAsString());
+        HttpHeaders header = new HttpHeaders();
 
-        if (args.get("endpoint") != null)
-            service.setEndPoint(args.get("endpoint").getAsString());
-
-        if (args.get("skip_authentication") != null)
-            service.setSkipAuthentication(args.get("skip_authentication")
-                    .getAsString() == "true");
-
-        ToneAnalysis result =
-                service.getTone(args.get("textToAnalyze").getAsString(), null).
-                        execute();
-
-        System.out.println(result.toString());
-        return parser.parse(result.toString()).getAsJsonObject();
+        String auth = username + ":" + password;
+        byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(Charset.forName("US-ASCII")));
+        String headerAuth = "Basic " + new String(encodedAuth);
+        header.set( "Authorization", headerAuth );
+        return header;
     }
 
+    /**
+     * Evaluates the emotional aspect of the text, as per IBM Watson, and ranks which emotion
+     * was most strongly demonstrated in the text.
+     *
+     * @param textToAnalyze String
+     * @return String of which emotion was strongest, and how present it was in the text in %
+     */
     public String emotionAnalyzer(String textToAnalyze) {
         WatsonResponse response = callWatson(textToAnalyze);
         Tone biggestEmotion = new Tone();
@@ -81,11 +85,18 @@ public class WatsonService {
         }
         int percentScore = (int) (biggestEmotion.getScore() * 100);
         String analysis = "IBM Watson thinks this tweet was " + percentScore + "% " + emotionFormat(biggestEmotion.getTone_id());
+        System.out.println(textToAnalyze);
         System.out.println(analysis);
         return analysis;
         // Returns String "This tweet was a little / "" / very angry - Watson rated it 11% angry"
     }
 
+    /**
+     * Changes the IBM Watson tone ids from nouns to adjectives.
+     *
+     * @param emotion String getTone_id()
+     * @return String of adjective and happy/sad face
+     */
     public String emotionFormat(String emotion) {
         String formattedEmo = emotion;
         switch (emotion) {

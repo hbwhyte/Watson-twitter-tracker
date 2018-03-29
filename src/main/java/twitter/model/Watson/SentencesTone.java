@@ -1,4 +1,4 @@
-package twitter.model.external.Watson;
+package twitter.model.Watson;
 
 public class SentencesTone {
 
