@@ -3,19 +3,50 @@ package twitter.services;
 
 import com.google.gson.Gson;
 
+import org.apache.commons.codec.binary.Base64;
+import org.apache.http.NameValuePair;
+import org.apache.http.ParseException;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
+import twitter.model.NeutrinoResponse;
 import twitter.model.Twitter.TwitterResponse;
+import twitter.model.Watson.WatsonResponse;
 import twitter4j.*;
 import twitter4j.Twitter;
 import twitter4j.conf.ConfigurationBuilder;
+
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class TwitterService {
 
     @Autowired
     WatsonService watsonService;
+
+    @Autowired
+    RestTemplate restTemplate;
+
+    @Value("${neutrino.user-id}")
+    private String userId;
+    @Value("${neutrino.api-key}")
+    private String apiKey;
+
 
     /**
      * Finds the most recent tweet about a search subject
@@ -93,9 +124,9 @@ public class TwitterService {
      * @return
      */
     public String analyzeTweet(String search) {
-        String tweet = latestTweet(search);
+        String tweet = filterSwears(latestTweet(search));
         String tweetAnalysis = watsonService.emotionAnalyzer(tweet);
-        return "The most recent tweet about \"" + search + "\" was: \"" + tweet + "\". " + tweetAnalysis;
+        return "The most recent tweet about \"" + filterSwears(search) + "\" was \"" + tweet + "\"\n" + tweetAnalysis;
     }
 
 
@@ -109,6 +140,15 @@ public class TwitterService {
         String tweet = analyzeTweet(search);
         createTweet(tweet);
         return tweet + " Tweet successfully posted!";
+    }
+
+    public String filterSwears(String tweet) {
+
+        String fQuery = "https://neutrinoapi.com/bad-word-filter?user-id="+userId+
+                "&api-key="+apiKey+"&content="+tweet+"&censor-character=*";
+        NeutrinoResponse response = restTemplate.getForObject(fQuery, NeutrinoResponse.class);
+        String cleanTweet = response.getCensoredContent();
+        return cleanTweet;
     }
 
 }

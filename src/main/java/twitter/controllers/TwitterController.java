@@ -1,5 +1,6 @@
 package twitter.controllers;
 
+import twitter.model.NeutrinoResponse;
 import twitter.model.Twitter.TwitterResponse;
 import twitter.model.Watson.WatsonResponse;
 import twitter.services.TwitterService;
@@ -92,5 +93,10 @@ public class TwitterController {
     @RequestMapping(method = RequestMethod.POST, value = "/analyze")
     public String postAnalysis(@RequestParam(value = "q", defaultValue = "monzo") String search) {
         return twitterService.postAnalysis(search);
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/filter")
+    public String filter(@RequestParam(value = "text", defaultValue = "fuck this shit") String text) {
+        return twitterService.filterSwears(text);
     }
 }
