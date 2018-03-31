@@ -1,4 +1,4 @@
-package twitter.model;
+package twitter.model.Neutrino;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

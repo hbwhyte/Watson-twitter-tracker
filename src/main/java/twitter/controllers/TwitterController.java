@@ -1,6 +1,5 @@
 package twitter.controllers;
 
-import twitter.model.NeutrinoResponse;
 import twitter.model.Twitter.TwitterResponse;
 import twitter.model.Watson.WatsonResponse;
 import twitter.services.TwitterService;

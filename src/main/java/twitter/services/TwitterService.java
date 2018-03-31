@@ -3,35 +3,17 @@ package twitter.services;
 
 import com.google.gson.Gson;
 
-import org.apache.commons.codec.binary.Base64;
-import org.apache.http.NameValuePair;
-import org.apache.http.ParseException;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 
-import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
-import twitter.model.NeutrinoResponse;
+import twitter.model.Neutrino.NeutrinoResponse;
 import twitter.model.Twitter.TwitterResponse;
-import twitter.model.Watson.WatsonResponse;
 import twitter4j.*;
 import twitter4j.Twitter;
 import twitter4j.conf.ConfigurationBuilder;
-
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 public class TwitterService {
@@ -67,7 +49,6 @@ public class TwitterService {
             System.exit(-1);
         }
         String latestTweet = result.getTweets().get(0).getText();
-        System.out.println(latestTweet);
         return latestTweet;
     }
 
@@ -124,11 +105,10 @@ public class TwitterService {
      * @return
      */
     public String analyzeTweet(String search) {
-        String tweet = filterSwears(latestTweet(search));
+        String tweet = latestTweet(search);
         String tweetAnalysis = watsonService.emotionAnalyzer(tweet);
-        return "The most recent tweet about \"" + filterSwears(search) + "\" was \"" + tweet + "\"\n" + tweetAnalysis;
+        return "The most recent tweet about \"" + search + "\" was \"" + tweet + "\"\n" + tweetAnalysis;
     }
-
 
     /**
      * Takes the results of analyzeTweet(), then tweets it live as @randomJavaFun
@@ -138,17 +118,70 @@ public class TwitterService {
      */
     public String postAnalysis(String search) {
         String tweet = analyzeTweet(search);
-        createTweet(tweet);
-        return tweet + " Tweet successfully posted!";
+        boolean nsfw = false;
+        try {
+            nsfw = hasSwears(tweet);
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+            System.out.println("WARNING: Potentially NSFW, Bad Words Filter was not run.");
+        }
+        if (nsfw) {
+            return tweet + "\nTweet contains possible inappropriate language. Tweet was not posted.";
+        } else {
+            createTweet(tweet);
+            return tweet + "\nTweet successfully posted!";
+        }
     }
 
-    public String filterSwears(String tweet) {
+    /**
+     *  Takes in a text string and runs it through Neutrino API's Bad Word Filter. Replaces
+     *  any words from their list with a "*".
+     *
+     *  In addition to filtering the swears, the API also deletes any punctuation too, so the formatted
+     *  text sometimes looks weird. There is a 25 call per day limit on the free tier API.
+     *
+     * @param text String to be sent through the Bad Word Filter
+     * @return String of filtered text.
+     */
+    public String filterSwears(String text) {
+            String fQuery = "https://neutrinoapi.com/bad-word-filter?user-id="+userId+
+                    "&api-key="+apiKey+"&content="+text+"&censor-character=*";
+        try {
+            NeutrinoResponse response = restTemplate.getForObject(fQuery, NeutrinoResponse.class);
+            String cleanText = response.getCensoredContent();
+            return cleanText;
+        } catch (RestClientException e) {
+            e.printStackTrace();
+            System.out.println("NSFW: Warning, text was not cleaned!");
+            return text;
+        }
+    }
 
+    /**
+     *  Takes in a text string and runs it through Neutrino API's Bad Word Filter and identifies
+     *  whether or not there were identifiable swear words in the text.
+     *
+     *  If the call fails, it returns false so the
+     *
+     * @param text String to be sent through the Bad Word Filter
+     * @return boolean true if text contained swears
+     * @throws NullPointerException
+     */
+
+    public boolean hasSwears(String text) throws NullPointerException {
         String fQuery = "https://neutrinoapi.com/bad-word-filter?user-id="+userId+
-                "&api-key="+apiKey+"&content="+tweet+"&censor-character=*";
-        NeutrinoResponse response = restTemplate.getForObject(fQuery, NeutrinoResponse.class);
-        String cleanTweet = response.getCensoredContent();
-        return cleanTweet;
+                "&api-key="+apiKey+"&content="+text+"&censor-character=*";
+        NeutrinoResponse response = null;
+        try {
+            response = restTemplate.getForObject(fQuery, NeutrinoResponse.class);
+        } catch (RestClientException e) {
+            e.printStackTrace();
+            System.out.println("NSFW: Warning, text was not cleaned!");
+        }
+        if (response != null) {
+            return response.isBad();
+        } else {
+            throw new NullPointerException("NSFW: Warning, text was not cleaned!");
+        }
     }
-
 }

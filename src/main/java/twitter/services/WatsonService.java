@@ -80,15 +80,11 @@ public class WatsonService {
                 biggestEmotion.setScore(emotion.getScore());
                 biggestEmotion.setTone_id(emotion.getTone_id());
                 biggestEmotion.setTone_name(emotion.getTone_name());
-                System.out.println(biggestEmotion.getScore());
             }
         }
         int percentScore = (int) (biggestEmotion.getScore() * 100);
         String analysis = "IBM Watson thinks this tweet was " + percentScore + "% " + emotionFormat(biggestEmotion.getTone_id());
-        System.out.println(textToAnalyze);
-        System.out.println(analysis);
         return analysis;
-        // Returns String "This tweet was a little / "" / very angry - Watson rated it 11% angry"
     }
 
     /**
@@ -118,6 +114,5 @@ public class WatsonService {
         }
         return formattedEmo;
     }
-
 }
 
