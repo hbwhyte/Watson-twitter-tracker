@@ -15,6 +15,9 @@ import twitter4j.*;
 import twitter4j.Twitter;
 import twitter4j.conf.ConfigurationBuilder;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+
 @Service
 public class TwitterService {
 
@@ -36,7 +39,7 @@ public class TwitterService {
      * @param search term to search Twitter for
      * @return String text of the most recent tweet
      */
-    public static String latestTweet(String search) {
+    public String latestTweet(String search) {
         Twitter twitter = new TwitterFactory().getInstance();
         Query query = new Query(search);
         query.count(1).lang("en").setResultType(Query.ResultType.recent);
@@ -46,7 +49,6 @@ public class TwitterService {
         } catch (TwitterException te) {
             te.printStackTrace();
             System.out.println("Failed to search tweets: " + te.getMessage());
-            System.exit(-1);
         }
         String latestTweet = result.getTweets().get(0).getText();
         return latestTweet;
@@ -58,7 +60,7 @@ public class TwitterService {
      * @param search term to search Twitter for
      * @return TwitterResponse object that was mapped from the JSON response
      */
-    public static TwitterResponse searchTwitterList(String search) {
+    public TwitterResponse searchTwitterList(String search) {
         Twitter twitter = new TwitterFactory(
                 new ConfigurationBuilder().setTweetModeExtended(true).setJSONStoreEnabled(true).build()).getInstance();
         TwitterResponse response = new TwitterResponse();
@@ -91,7 +93,6 @@ public class TwitterService {
         } catch (TwitterException te) {
             te.printStackTrace();
             System.out.println("Failed to post tweet: " + te.getMessage());
-            System.exit(-1);
         }
         return status.getText();
     }
@@ -107,7 +108,7 @@ public class TwitterService {
     public String analyzeTweet(String search) {
         String tweet = latestTweet(search);
         String tweetAnalysis = watsonService.emotionAnalyzer(tweet);
-        return "The most recent tweet about \"" + search + "\" was \"" + tweet + "\"\n" + tweetAnalysis;
+        return "The most recent tweet about \"" + search + "\" was \"" + tweet + "\"\n\n" + tweetAnalysis;
     }
 
     /**
@@ -144,8 +145,9 @@ public class TwitterService {
      * @return String of filtered text.
      */
     public String filterSwears(String text) {
+        String encodedText = encodeHashtags(text);
             String fQuery = "https://neutrinoapi.com/bad-word-filter?user-id="+userId+
-                    "&api-key="+apiKey+"&content="+text+"&censor-character=*";
+                    "&api-key="+apiKey+"&content="+encodedText+"&censor-character=*";
         try {
             NeutrinoResponse response = restTemplate.getForObject(fQuery, NeutrinoResponse.class);
             String cleanText = response.getCensoredContent();
@@ -169,8 +171,9 @@ public class TwitterService {
      */
 
     public boolean hasSwears(String text) throws NullPointerException {
+        String encodedText = encodeHashtags(text);
         String fQuery = "https://neutrinoapi.com/bad-word-filter?user-id="+userId+
-                "&api-key="+apiKey+"&content="+text+"&censor-character=*";
+                "&api-key="+apiKey+"&content="+encodedText+"&censor-character=*";
         NeutrinoResponse response = null;
         try {
             response = restTemplate.getForObject(fQuery, NeutrinoResponse.class);
@@ -183,5 +186,22 @@ public class TwitterService {
         } else {
             throw new NullPointerException("NSFW: Warning, text was not cleaned!");
         }
+    }
+
+    /**
+     * Makes text safe for URIs. Needed especially with tweets becuase the # symbol
+     * isn't supported in URI/URLs.
+     *
+     * @param text String to be encoded
+     * @return encoded String
+     */
+
+    public String encodeHashtags(String text) {
+        try {
+            text = URLEncoder.encode(text, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return text;
     }
 }

@@ -13,6 +13,9 @@ import twitter.model.Watson.Tone;
 import twitter.model.Watson.WatsonResponse;
 
 import org.apache.commons.codec.binary.Base64;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.nio.charset.Charset;
 
 
@@ -22,10 +25,13 @@ public class WatsonService {
     @Autowired
     RestTemplate restTemplate;
 
-    @Value("${watson.password}")
-    private String password;
+    @Autowired
+    TwitterService twitterService;
+
     @Value("${watson.username}")
     private String username;
+    @Value("${watson.password}")
+    private String password;
 
     /**
      * Connects to IBM Watson Tone Analyzer API with authentication grabbed from authorize()
@@ -34,8 +40,8 @@ public class WatsonService {
      * @return WatsonResponse mapped object
      */
     public WatsonResponse callWatson(String textToAnalyze) {
-
-        String fQuery = "https://gateway.watsonplatform.net/tone-analyzer/api/v3/tone?version=2016-05-19&text=" + textToAnalyze;
+        String encodedText = twitterService.encodeHashtags(textToAnalyze);
+        String fQuery = "https://gateway.watsonplatform.net/tone-analyzer/api/v3/tone?version=2016-05-19&text=" + encodedText;
 
         ResponseEntity<WatsonResponse> responseEntity
                 = restTemplate.exchange(fQuery, HttpMethod.GET, new HttpEntity<>(authorize(
