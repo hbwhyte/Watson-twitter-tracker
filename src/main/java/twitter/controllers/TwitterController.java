@@ -98,4 +98,7 @@ public class TwitterController {
     public String filter(@RequestParam(value = "text", defaultValue = "fuck this shit") String text) {
         return twitterService.filterSwears(text);
     }
+
+    // Feedback: great work - let's focus on beefing out the exception handling here in the controller and globally
+    // (details on that to come in class this week) - so that the user never gets a blank response or a stacktrace
 }

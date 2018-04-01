@@ -47,6 +47,7 @@ public class WatsonService {
                 = restTemplate.exchange(fQuery, HttpMethod.GET, new HttpEntity<>(authorize(
                         username,password)), WatsonResponse.class);
 
+        // Feedback: could this be a nullpointer waiting to happen?
         WatsonResponse response = responseEntity.getBody();
 
         return response;
@@ -88,6 +89,8 @@ public class WatsonService {
                 biggestEmotion.setTone_name(emotion.getTone_name());
             }
         }
+
+        // Feedback: what happens if the WatsonResponse response comes back null? Is this situation accounted for?
         int percentScore = (int) (biggestEmotion.getScore() * 100);
         String analysis = "IBM Watson thinks this tweet was " + percentScore + "% " + emotionFormat(biggestEmotion.getTone_id());
         return analysis;
@@ -120,5 +123,8 @@ public class WatsonService {
         }
         return formattedEmo;
     }
+
+    // Feedback: more in-line comments would be good. Otherwise this looks really good. Just need to beef up the
+    // exception handling. We have to assume that everything that can go wrong will go wrong. Usually very quickly.
 }
 

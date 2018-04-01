@@ -19,7 +19,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
 @Service
-public class TwitterService {
+public class    TwitterService {
 
     @Autowired
     WatsonService watsonService;
@@ -47,9 +47,16 @@ public class TwitterService {
         try {
             result = twitter.search(query);
         } catch (TwitterException te) {
+            // Feedback: printing the stack trace to the logs is good, but you should probably throw the exception to the controller
+            // we haven't talked about it much yet, but we'll be adding controller level and global API error handling so that the end
+            // user is aware something has gone wrong and doesn't get a stacktrace back or an empty response
             te.printStackTrace();
             System.out.println("Failed to search tweets: " + te.getMessage());
         }
+        // Feedback: this seems like it could be a nullpointer if the catch above was triggered
+        // if it's not a nullpointer it will still return null if the catch was triggered
+        // at this point, I'd recommend returning a string that says an error has occured,
+        // ideally with some detail on the error that happened.
         String latestTweet = result.getTweets().get(0).getText();
         return latestTweet;
     }
@@ -72,8 +79,15 @@ public class TwitterService {
             System.out.println(gson.toJson(result));
             response = gson.fromJson(gson.toJson(result), TwitterResponse.class);
         } catch (TwitterException te) {
+            // Feedback: similar feedback as in method above
+            // I'd probably throw this exception up to the caling method
+            // if the controller catches an exception it can format an object nicely and return it
+            // to the user
             te.printStackTrace();
             System.out.println("Failed to search tweets: " + te.getMessage());
+            // Feedback: System.exit terminates the currently running JVM
+            // not sure that's what you want to do here. I'd throw the exception
+            // we'll talk about controller api exception handling this week
             System.exit(-1);
         }
         return response;
@@ -91,9 +105,14 @@ public class TwitterService {
         try {
             status = twitter.updateStatus(tweet);
         } catch (TwitterException te) {
+            // Feedback: same as above
+            // print the stacktrace to the log is not that useful
+            // it's good, but the consumer of the code is not monitoring the logs
+            // I'd throw this exception
             te.printStackTrace();
             System.out.println("Failed to post tweet: " + te.getMessage());
         }
+        // Feedback: this is a nullpointer waiting to happen if the catch above was triggered
         return status.getText();
     }
 
@@ -108,6 +127,9 @@ public class TwitterService {
     public String analyzeTweet(String search) {
         String tweet = latestTweet(search);
         String tweetAnalysis = watsonService.emotionAnalyzer(tweet);
+
+        // Feedback: both tweet and tweetAnalysis can be null or errors, so some more
+        // error handling is required here
         return "The most recent tweet about \"" + search + "\" was \"" + tweet + "\"\n\n" + tweetAnalysis;
     }
 
@@ -123,10 +145,17 @@ public class TwitterService {
         try {
             nsfw = hasSwears(tweet);
         } catch (NullPointerException e) {
+            // Feedback: same as above - totally understand why your printing the stacktrace and moving
+            // on. But we'll need to make this a bit more usable for a proper deployment as just printing
+            // the stacktrace in each of these catches will lead to several dead ends where the user gets an
+            // error or an empty response
             e.printStackTrace();
             System.out.println("WARNING: Potentially NSFW, Bad Words Filter was not run.");
         }
         if (nsfw) {
+            // Feedback: if the catch above was triggered - nsfw will always be false - which seems like it could
+            // lead to a false negative and an NSFW tweet could make it through if any error in the hasSwears() method
+            // is encountered
             return tweet + "\nTweet contains possible inappropriate language. Tweet was not posted.";
         } else {
             createTweet(tweet);
@@ -178,12 +207,16 @@ public class TwitterService {
         try {
             response = restTemplate.getForObject(fQuery, NeutrinoResponse.class);
         } catch (RestClientException e) {
+            // Feedback: same as above about just printing the exception and moving on
+            // this will lead to bugs and strange behavior
             e.printStackTrace();
             System.out.println("NSFW: Warning, text was not cleaned!");
         }
         if (response != null) {
             return response.isBad();
         } else {
+            // Feedback: is it really a nullpointerexception? this could be a good spot
+            // for a custom exception potentially
             throw new NullPointerException("NSFW: Warning, text was not cleaned!");
         }
     }
@@ -204,4 +237,9 @@ public class TwitterService {
         }
         return text;
     }
+
+    // Feedback: general feedback - this code looks really good. Impressive. We'll work on the error handling
+    // I also think having some more in-line comments could be good. When you come back to this code in a year,
+    // or when someone else has to work with it, you/they will be very grateful for verbose documentation throughout
+    // your javadoc comments above each method are great
 }

@@ -2,6 +2,9 @@ package twitter.model.Neutrino;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+
+// Feedback: each of your model classes could use a small javadoc comment at the class level, above the class
+// definition with a quick description of what it is and what it's used for
 public class NeutrinoResponse {
     @JsonProperty("bad-words-list")
     String[] badWordsList;
