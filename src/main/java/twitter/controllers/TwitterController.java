@@ -1,5 +1,6 @@
 package twitter.controllers;
 
+import twitter.model.GeneralResponse;
 import twitter.model.Twitter.TwitterResponse;
 import twitter.model.Watson.WatsonResponse;
 import twitter.services.TwitterService;
@@ -18,29 +19,33 @@ public class TwitterController {
     WatsonService watsonService;
 
     /**
-     * Searches twitter for the text of the most recent tweet of the search term
+     * Searches Twitter for the text of the most recent tweet of the search term
      *
      * @param search term to search Twitter for
      * @return String text body of the most recent tweet. 140char limit.
      */
     @RequestMapping(method = RequestMethod.GET, value = "/")
-    public String searchTwitter(@RequestParam(value = "q", defaultValue = "coffee") String search) {
-        return twitterService.latestTweet(search);
+    public GeneralResponse searchTwitter(@RequestParam(value = "q", defaultValue = "coffee") String search) {
+        GeneralResponse gr = new GeneralResponse();
+        gr.setData(twitterService.latestTweet(search));
+        return gr;
     }
 
     /**
-     * Searches twitter for a search term, and returns 20 popular hits in json
+     * Searches Twitter for a search term, and returns 20 popular hits in json
      *
      * @param search term to search Twitter for
      * @return Twitter Response mapped object (not full json)
      */
     @RequestMapping(method = RequestMethod.GET, value = "/list")
-    public TwitterResponse searchTwitterList(@RequestParam(value = "q", defaultValue = "coffee") String search) {
-        return twitterService.searchTwitterList(search);
+    public GeneralResponse searchTwitterList(@RequestParam(value = "q", defaultValue = "coffee") String search) {
+        GeneralResponse gr = new GeneralResponse();
+        gr.setData(twitterService.searchTwitterList(search));
+        return gr;
     }
 
     /**
-     * Posts a tweet to the @JavaRandomFun twitter feed
+     * Posts a tweet to the @JavaRandomFun Twitter feed
      *
      * @param tweet the String to be posted.
      * @return String of what was posted to twitter
@@ -84,7 +89,7 @@ public class TwitterController {
     }
 
     /**
-     * Takes the Watson tweet analysis, and then posts it to @JavaRandomFun twitter feed
+     * Takes the Watson tweet analysis, and then posts it to @JavaRandomFun Twitter feed
      *
      * @param search term to search Twitter for
      * @return String of what was posted to Twitter and a success message (if succesful)

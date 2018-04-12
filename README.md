@@ -1,6 +1,6 @@
 # Watson Twitter Tracker
 
-Twitter has quite the reputation for being a pretty angry, screaming kind of place (remember when, in less than a day, it turned [Tay.ai into a racist jerk](https://www.theverge.com/2016/3/24/11297050/tay-microsoft-chatbot-racist)? 
+Twitter has quite the reputation for being a pretty angry, screaming kind of place. Remember when, in less than a day, it turned [Tay.ai into a racist jerk](https://www.theverge.com/2016/3/24/11297050/tay-microsoft-chatbot-racist)? 
 
 But is that what it's really feeling? Let's find out!
 

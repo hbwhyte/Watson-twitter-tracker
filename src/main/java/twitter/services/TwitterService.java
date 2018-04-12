@@ -39,8 +39,10 @@ public class TwitterService {
      * @param search term to search Twitter for
      * @return String text of the most recent tweet
      */
-    public String latestTweet(String search) {
-        Twitter twitter = new TwitterFactory().getInstance();
+    public TwitterResponse latestTweet(String search) {
+        Twitter twitter = new TwitterFactory(
+                new ConfigurationBuilder().setTweetModeExtended(true).setJSONStoreEnabled(true).build()).getInstance();
+        TwitterResponse response = new TwitterResponse();
         Query query = new Query(search);
         query.count(1).lang("en").setResultType(Query.ResultType.recent);
         QueryResult result = null;
@@ -50,8 +52,12 @@ public class TwitterService {
             te.printStackTrace();
             System.out.println("Failed to search tweets: " + te.getMessage());
         }
-        String latestTweet = result.getTweets().get(0).getText();
-        return latestTweet;
+        Gson gson = new Gson();
+        System.out.println(gson.toJson(result));
+        response = gson.fromJson(gson.toJson(result), TwitterResponse.class);
+        return response;
+//        String latestTweet = result.getTweets().get(0).getText();
+//        return latestTweet;
     }
 
     /**
@@ -106,7 +112,7 @@ public class TwitterService {
      * @return
      */
     public String analyzeTweet(String search) {
-        String tweet = latestTweet(search);
+        String tweet = latestTweet(search).getTweets()[0].getText();
         String tweetAnalysis = watsonService.emotionAnalyzer(tweet);
         return "The most recent tweet about \"" + search + "\" was \"" + tweet + "\"\n\n" + tweetAnalysis;
     }
