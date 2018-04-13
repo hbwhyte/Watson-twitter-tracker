@@ -6,7 +6,7 @@ public class Tweet {
     int favoriteCount;
     int retweetCount;
     String lang;
-    User user;
+    TwitterUser twitterUser;
 
     public long getId() {
         return id;
@@ -48,11 +48,11 @@ public class Tweet {
         this.lang = lang;
     }
 
-    public User getUser() {
-        return user;
+    public TwitterUser getTwitterUser() {
+        return twitterUser;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setTwitterUser(TwitterUser twitterUser) {
+        this.twitterUser = twitterUser;
     }
 }

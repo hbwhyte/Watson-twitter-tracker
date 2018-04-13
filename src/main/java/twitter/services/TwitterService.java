@@ -3,23 +3,29 @@ package twitter.services;
 
 import com.google.gson.Gson;
 
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+import twitter.exceptions.custom_exceptions.EmptySearchException;
 import twitter.model.Neutrino.NeutrinoResponse;
+import twitter.model.Twitter.Tweet;
 import twitter.model.Twitter.TwitterResponse;
+import twitter.model.Twitter.TwitterUser;
 import twitter4j.*;
 import twitter4j.Twitter;
 import twitter4j.conf.ConfigurationBuilder;
+import org.slf4j.Logger;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
 @Service
 public class TwitterService {
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Autowired
     WatsonService watsonService;
@@ -32,75 +38,129 @@ public class TwitterService {
     @Value("${neutrino.api-key}")
     private String apiKey;
 
-
     /**
-     * Finds the most recent tweet about a search subject
+     * Finds the most recent tweet about a search subject.
+     * You can modify:
+     *    - The number of tweets it returns
+     *    - Truncated (140 char) or full (280 char) tweets returned
+     *    - Language filter
+     *    - Search by popular, recent, or mixed
      *
      * @param search term to search Twitter for
      * @return String text of the most recent tweet
+     * @throws TwitterException
      */
-    public TwitterResponse latestTweet(String search) {
+    public TwitterResponse latestTweet(String search) throws TwitterException, EmptySearchException {
+        // Searches for full tweet (280 chars) and enables JSON
         Twitter twitter = new TwitterFactory(
                 new ConfigurationBuilder().setTweetModeExtended(true).setJSONStoreEnabled(true).build()).getInstance();
-        TwitterResponse response = new TwitterResponse();
+        // Instantiate query
         Query query = new Query(search);
-        query.count(1).lang("en").setResultType(Query.ResultType.recent);
         QueryResult result = null;
+
+        // Search for 1 most recent tweet, in English
+        query.count(1).lang("en").setResultType(Query.ResultType.recent);
+
+        // Search Twitter
         try {
             result = twitter.search(query);
+            // If search is successful, but there aren't any tweets for that term
+            if (result.getTweets().isEmpty()){
+                logger.info("Search complete, no results found empty");
+                throw new EmptySearchException("Sorry, not even Twitter is talking about that.");
+            } else {
+            logger.info("Tweet(s) found");
+            }
         } catch (TwitterException te) {
-            te.printStackTrace();
-            System.out.println("Failed to search tweets: " + te.getMessage());
+            logger.warn("Unable to search tweets: " + te);
+            throw new TwitterException("Unable to search tweets");
         }
+        // Convert Twitter4j response to JSON, then maps to custom TwitterResponse
         Gson gson = new Gson();
-        System.out.println(gson.toJson(result));
-        response = gson.fromJson(gson.toJson(result), TwitterResponse.class);
+        TwitterResponse response = gson.fromJson(gson.toJson(result), TwitterResponse.class);
+
         return response;
-//        String latestTweet = result.getTweets().get(0).getText();
-//        return latestTweet;
     }
 
     /**
-     * Searches 20 most recent tweets for a search term and returns a mapped POJO
+     * Searches for a list of recent tweets for a search term and
+     * returns a mapped POJO of all tweets
+     *
+     * You can modify:
+     *    - The number of tweets it returns
+     *    - Truncated (140 char) or full (280 char) tweets returned
+     *    - Language filter
+     *    - Search by popular, recent, or mixed
      *
      * @param search term to search Twitter for
      * @return TwitterResponse object that was mapped from the JSON response
      */
-    public TwitterResponse searchTwitterList(String search) {
+    public TwitterResponse searchTwitterList(String search) throws TwitterException, EmptySearchException {
+        // Searches for full tweet (280 chars) and enables JSON
         Twitter twitter = new TwitterFactory(
                 new ConfigurationBuilder().setTweetModeExtended(true).setJSONStoreEnabled(true).build()).getInstance();
-        TwitterResponse response = new TwitterResponse();
+        // Instantiate query
+        Query query = new Query(search);
+        QueryResult result = null;
+
+        // Search for up to 20 tweets in English, with a mix of popular and most recent
+        query.count(20).lang("en").setResultType(Query.ResultType.mixed);
+
+        // Search Twitter
         try {
-            Query query = new Query(search);
-            query.count(20).lang("en");
-            QueryResult result = twitter.search(query);
-            Gson gson = new Gson();
-            System.out.println(gson.toJson(result));
-            response = gson.fromJson(gson.toJson(result), TwitterResponse.class);
+            result = twitter.search(query);
+            // If search is successful, but there aren't any tweets for that term
+            if (result.getTweets().isEmpty()){
+                logger.info("Search complete, no results found empty");
+                throw new EmptySearchException("Sorry, not even Twitter is talking about that.");
+            } else {
+                logger.info("Tweet(s) found");
+            }
         } catch (TwitterException te) {
-            te.printStackTrace();
-            System.out.println("Failed to search tweets: " + te.getMessage());
-            System.exit(-1);
+            logger.warn("Unable to search tweets: " + te);
+            throw new TwitterException("Unable to search tweets");
         }
+
+        // Convert Twitter4j response to JSON, then maps to custom TwitterResponse
+        Gson gson = new Gson();
+        TwitterResponse response = gson.fromJson(gson.toJson(result), TwitterResponse.class);
+
         return response;
     }
 
     /**
      * Posts a tweet to @randomJavaFun's twitter feed
+     * To tweet to your account update twitter4j.properties
      *
-     * @param tweet String body of the tweet (280 char max)
+     * @param text String body of the tweet (280 char max)
      * @return String of the tweet
      */
-    public String createTweet(String tweet) {
+    public Tweet createTweet(String text) throws TwitterException {
         Twitter twitter = new TwitterFactory().getInstance();
+        Tweet tweet = new Tweet();
+        TwitterUser user = new TwitterUser();
         Status status = null;
-        try {
-            status = twitter.updateStatus(tweet);
-        } catch (TwitterException te) {
-            te.printStackTrace();
-            System.out.println("Failed to post tweet: " + te.getMessage());
+        // Verify text fits Twitter's character restrictions.
+        if (text.length() > 280) {
+            throw new TwitterException("Too many characters. Twitter has a 280 character limit per tweet.");
         }
-        return status.getText();
+        // Post tweet
+        try {
+            status = twitter.updateStatus(text);
+        } catch (TwitterException te) {
+            throw new TwitterException("Failed to post tweet.");
+        }
+
+        // Maps successfully posted tweet to Java object
+        tweet.setId(status.getId());
+        tweet.setText(status.getText());
+        tweet.setLang(status.getLang());
+        user.setId(status.getId());
+        user.setName(status.getUser().getName());
+        user.setScreenName(status.getUser().getScreenName());
+        tweet.setTwitterUser(user);
+
+        return tweet;
     }
 
     /**
@@ -111,7 +171,7 @@ public class TwitterService {
      * @param search term to search Twitter for
      * @return
      */
-    public String analyzeTweet(String search) {
+    public String analyzeTweet(String search) throws TwitterException, EmptySearchException, UnsupportedEncodingException {
         String tweet = latestTweet(search).getTweets()[0].getText();
         String tweetAnalysis = watsonService.emotionAnalyzer(tweet);
         return "The most recent tweet about \"" + search + "\" was \"" + tweet + "\"\n\n" + tweetAnalysis;
@@ -123,7 +183,7 @@ public class TwitterService {
      * @param search term to search Twitter for
      * @return String of what was tweeted and a success message.
      */
-    public String postAnalysis(String search) {
+    public String postAnalysis(String search) throws TwitterException, EmptySearchException, UnsupportedEncodingException {
         String tweet = analyzeTweet(search);
         boolean nsfw = false;
         try {
@@ -150,7 +210,7 @@ public class TwitterService {
      * @param text String to be sent through the Bad Word Filter
      * @return String of filtered text.
      */
-    public String filterSwears(String text) {
+    public String filterSwears(String text) throws UnsupportedEncodingException{
         String encodedText = encodeHashtags(text);
             String fQuery = "https://neutrinoapi.com/bad-word-filter?user-id="+userId+
                     "&api-key="+apiKey+"&content="+encodedText+"&censor-character=*";
@@ -176,7 +236,7 @@ public class TwitterService {
      * @throws NullPointerException
      */
 
-    public boolean hasSwears(String text) throws NullPointerException {
+    public boolean hasSwears(String text) throws NullPointerException, UnsupportedEncodingException {
         String encodedText = encodeHashtags(text);
         String fQuery = "https://neutrinoapi.com/bad-word-filter?user-id="+userId+
                 "&api-key="+apiKey+"&content="+encodedText+"&censor-character=*";
@@ -202,11 +262,11 @@ public class TwitterService {
      * @return encoded String
      */
 
-    public String encodeHashtags(String text) {
+    public String encodeHashtags(String text) throws UnsupportedEncodingException {
         try {
             text = URLEncoder.encode(text, "UTF-8");
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            throw new UnsupportedEncodingException("Could not encode hashtags");
         }
         return text;
     }

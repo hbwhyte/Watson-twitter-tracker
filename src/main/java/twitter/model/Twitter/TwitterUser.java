@@ -1,6 +1,6 @@
 package twitter.model.Twitter;
 
-public class User {
+public class TwitterUser {
 
     long id;
     String name;

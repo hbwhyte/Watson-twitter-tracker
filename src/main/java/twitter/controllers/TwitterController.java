@@ -1,5 +1,6 @@
 package twitter.controllers;
 
+import twitter.exceptions.custom_exceptions.EmptySearchException;
 import twitter.model.GeneralResponse;
 import twitter.model.Twitter.TwitterResponse;
 import twitter.model.Watson.WatsonResponse;
@@ -7,6 +8,10 @@ import twitter.services.TwitterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import twitter.services.WatsonService;
+import twitter4j.Twitter;
+import twitter4j.TwitterException;
+
+import java.io.UnsupportedEncodingException;
 
 @RestController
 @RequestMapping("/twitter")
@@ -25,10 +30,14 @@ public class TwitterController {
      * @return String text body of the most recent tweet. 140char limit.
      */
     @RequestMapping(method = RequestMethod.GET, value = "/")
-    public GeneralResponse searchTwitter(@RequestParam(value = "q", defaultValue = "coffee") String search) {
-        GeneralResponse gr = new GeneralResponse();
-        gr.setData(twitterService.latestTweet(search));
-        return gr;
+    public GeneralResponse searchTwitter(@RequestParam(value = "q", defaultValue = "coffee") String search) throws TwitterException, EmptySearchException {
+        try {
+            GeneralResponse gr = new GeneralResponse();
+            gr.setData(twitterService.latestTweet(search));
+            return gr;
+        } catch (TwitterException e) {
+            throw e;
+        }
     }
 
     /**
@@ -38,7 +47,7 @@ public class TwitterController {
      * @return Twitter Response mapped object (not full json)
      */
     @RequestMapping(method = RequestMethod.GET, value = "/list")
-    public GeneralResponse searchTwitterList(@RequestParam(value = "q", defaultValue = "coffee") String search) {
+    public GeneralResponse searchTwitterList(@RequestParam(value = "q", defaultValue = "coffee") String search) throws TwitterException, EmptySearchException {
         GeneralResponse gr = new GeneralResponse();
         gr.setData(twitterService.searchTwitterList(search));
         return gr;
@@ -51,8 +60,10 @@ public class TwitterController {
      * @return String of what was posted to twitter
      */
     @RequestMapping(method = RequestMethod.POST, value = "/")
-    public String createTweet(@RequestBody String tweet) {
-        return twitterService.createTweet(tweet);
+    public GeneralResponse createTweet(@RequestBody String tweet) throws TwitterException {
+        GeneralResponse gr = new GeneralResponse();
+        gr.setData(twitterService.createTweet(tweet));
+        return gr;
     }
 
     /**
@@ -62,7 +73,7 @@ public class TwitterController {
      * @return Watson's JSON response mapped onto a WatsonResponse POJO
      */
     @RequestMapping(method = RequestMethod.POST, value = "/watson")
-    public WatsonResponse callWatson(@RequestBody String textToAnalyze) {
+    public WatsonResponse callWatson(@RequestBody String textToAnalyze) throws UnsupportedEncodingException {
         return watsonService.callWatson(textToAnalyze);
     }
 
@@ -73,7 +84,7 @@ public class TwitterController {
      * @return String saying which emotion was the strongest, and what % Watson thought it was
      */
     @RequestMapping(method = RequestMethod.GET, value = "/emo")
-    public String howEmotional(@RequestParam(value = "q", defaultValue = "blockchain") String textToAnalyze) {
+    public String howEmotional(@RequestParam(value = "q", defaultValue = "blockchain") String textToAnalyze) throws UnsupportedEncodingException {
         return watsonService.emotionAnalyzer(textToAnalyze);
     }
 
@@ -84,7 +95,7 @@ public class TwitterController {
      * @return String stating what was searched, the most recent tweet, and Watson's analysis
      */
     @RequestMapping(method = RequestMethod.GET, value = "/analyze")
-    public String analyzeTweet(@RequestParam(value = "q", defaultValue = "monzo") String search) {
+    public String analyzeTweet(@RequestParam(value = "q", defaultValue = "monzo") String search) throws TwitterException, EmptySearchException, UnsupportedEncodingException{
         return twitterService.analyzeTweet(search);
     }
 
@@ -95,12 +106,12 @@ public class TwitterController {
      * @return String of what was posted to Twitter and a success message (if succesful)
      */
     @RequestMapping(method = RequestMethod.POST, value = "/analyze")
-    public String postAnalysis(@RequestParam(value = "q", defaultValue = "monzo") String search) {
+    public String postAnalysis(@RequestParam(value = "q", defaultValue = "monzo") String search) throws TwitterException, EmptySearchException, UnsupportedEncodingException {
         return twitterService.postAnalysis(search);
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/filter")
-    public String filter(@RequestParam(value = "text", defaultValue = "fuck this shit") String text) {
+    public String filter(@RequestParam(value = "text", defaultValue = "fuck this shit") String text) throws UnsupportedEncodingException  {
         return twitterService.filterSwears(text);
     }
 }

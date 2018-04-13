@@ -39,7 +39,7 @@ public class WatsonService {
      * @param textToAnalyze
      * @return WatsonResponse mapped object
      */
-    public WatsonResponse callWatson(String textToAnalyze) {
+    public WatsonResponse callWatson(String textToAnalyze) throws UnsupportedEncodingException{
         String encodedText = twitterService.encodeHashtags(textToAnalyze);
         String fQuery = "https://gateway.watsonplatform.net/tone-analyzer/api/v3/tone?version=2016-05-19&text=" + encodedText;
 
@@ -77,7 +77,7 @@ public class WatsonService {
      * @param textToAnalyze String
      * @return String of which emotion was strongest, and how present it was in the text in %
      */
-    public String emotionAnalyzer(String textToAnalyze) {
+    public String emotionAnalyzer(String textToAnalyze) throws UnsupportedEncodingException{
         WatsonResponse response = callWatson(textToAnalyze);
         Tone biggestEmotion = new Tone();
         biggestEmotion.setScore(-1.0);
