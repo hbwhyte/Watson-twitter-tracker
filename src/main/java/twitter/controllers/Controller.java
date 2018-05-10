@@ -1,5 +1,6 @@
 package twitter.controllers;
 
+import twitter.exceptions.custom_exceptions.BadWordsFilterException;
 import twitter.exceptions.custom_exceptions.EmptySearchException;
 import twitter.model.GeneralResponse;
 import twitter.model.Twitter.TwitterResponse;
@@ -15,7 +16,7 @@ import java.io.UnsupportedEncodingException;
 
 @RestController
 @RequestMapping("/twitter")
-public class TwitterController {
+public class Controller {
 
     @Autowired
     TwitterService twitterService;
@@ -95,7 +96,7 @@ public class TwitterController {
      * @return String stating what was searched, the most recent tweet, and Watson's analysis
      */
     @RequestMapping(method = RequestMethod.GET, value = "/analyze")
-    public String analyzeTweet(@RequestParam(value = "q", defaultValue = "monzo") String search) throws TwitterException, EmptySearchException, UnsupportedEncodingException{
+    public String analyzeTweet(@RequestParam(value = "q", defaultValue = "monzo") String search) throws TwitterException, EmptySearchException, UnsupportedEncodingException {
         return twitterService.analyzeTweet(search);
     }
 
@@ -106,12 +107,14 @@ public class TwitterController {
      * @return String of what was posted to Twitter and a success message (if succesful)
      */
     @RequestMapping(method = RequestMethod.POST, value = "/analyze")
-    public String postAnalysis(@RequestParam(value = "q", defaultValue = "monzo") String search) throws TwitterException, EmptySearchException, UnsupportedEncodingException {
+    public String postAnalysis(@RequestParam(value = "q", defaultValue = "monzo") String search)
+            throws TwitterException, EmptySearchException, UnsupportedEncodingException, BadWordsFilterException {
         return twitterService.postAnalysis(search);
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/filter")
-    public String filter(@RequestParam(value = "text", defaultValue = "fuck this shit") String text) throws UnsupportedEncodingException  {
+    public String filter(@RequestParam(value = "text", defaultValue = "fuck this shit") String text)
+            throws UnsupportedEncodingException, BadWordsFilterException {
         return twitterService.filterSwears(text);
     }
 }

@@ -15,10 +15,12 @@ import twitter.model.Watson.WatsonResponse;
 import org.apache.commons.codec.binary.Base64;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.nio.charset.Charset;
 
-
+/**
+ * WatsonService handles the connection to the IBM Watson API, and the analysis of
+ * Watson's results.
+ */
 @Service
 public class WatsonService {
 
@@ -38,14 +40,15 @@ public class WatsonService {
      *
      * @param textToAnalyze
      * @return WatsonResponse mapped object
+     * @throws UnsupportedEncodingException if the character encoding is not supported
      */
-    public WatsonResponse callWatson(String textToAnalyze) throws UnsupportedEncodingException{
+    public WatsonResponse callWatson(String textToAnalyze) throws UnsupportedEncodingException {
         String encodedText = twitterService.encodeHashtags(textToAnalyze);
         String fQuery = "https://gateway.watsonplatform.net/tone-analyzer/api/v3/tone?version=2016-05-19&text=" + encodedText;
 
         ResponseEntity<WatsonResponse> responseEntity
                 = restTemplate.exchange(fQuery, HttpMethod.GET, new HttpEntity<>(authorize(
-                        username,password)), WatsonResponse.class);
+                username, password)), WatsonResponse.class);
 
         WatsonResponse response = responseEntity.getBody();
 
@@ -66,7 +69,7 @@ public class WatsonService {
         String auth = username + ":" + password;
         byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(Charset.forName("US-ASCII")));
         String headerAuth = "Basic " + new String(encodedAuth);
-        header.set( "Authorization", headerAuth );
+        header.set("Authorization", headerAuth);
         return header;
     }
 
@@ -76,8 +79,9 @@ public class WatsonService {
      *
      * @param textToAnalyze String
      * @return String of which emotion was strongest, and how present it was in the text in %
+     * @throws UnsupportedEncodingException if the character encoding is not supported
      */
-    public String emotionAnalyzer(String textToAnalyze) throws UnsupportedEncodingException{
+    public String emotionAnalyzer(String textToAnalyze) throws UnsupportedEncodingException {
         WatsonResponse response = callWatson(textToAnalyze);
         Tone biggestEmotion = new Tone();
         biggestEmotion.setScore(-1.0);

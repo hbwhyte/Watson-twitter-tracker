@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.NoHandlerFoundException;
+import twitter.exceptions.custom_exceptions.BadWordsFilterException;
+import twitter.exceptions.custom_exceptions.CustomException;
 import twitter.model.GeneralResponse;
 import twitter4j.TwitterException;
 
@@ -164,12 +166,38 @@ public class ControllerAdviceClass {
         GeneralResponse gr = new GeneralResponse();
         // Change GeneralResponse status to Fail
         gr.setStatus("Fail");
-        // HTTP Status 400 FORBIDDEN
+        // HTTP Status 403 FORBIDDEN
         gr.setResponse_code(HttpStatus.FORBIDDEN);
 
         // Create error JSON response
         CustomException error = new CustomException();
         error.setErrorName("Twitter Exception");
+        error.setReason(e.getMessage());
+
+        gr.setError(error);
+        return gr;
+    }
+
+    /**
+     * Handles any rejected requests from Neutrino thrown
+     * by their Bad Words Filter API
+     *
+     * @param e BadWordsFilterException
+     * @return GeneralResponse with a failed 403 message
+     */
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ExceptionHandler({BadWordsFilterException.class})
+    public @ResponseBody
+    GeneralResponse neutrinoError(BadWordsFilterException e) {
+        GeneralResponse gr = new GeneralResponse();
+        // Change GeneralResponse status to Fail
+        gr.setStatus("Fail");
+        // HTTP Status 403 FORBIDDEN
+        gr.setResponse_code(HttpStatus.FORBIDDEN);
+
+        // Create error JSON response
+        CustomException error = new CustomException();
+        error.setErrorName("Neutrino Bad Words Filter Exception");
         error.setReason(e.getMessage());
 
         gr.setError(error);

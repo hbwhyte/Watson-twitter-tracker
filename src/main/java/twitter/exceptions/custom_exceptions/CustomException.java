@@ -1,5 +1,8 @@
-package twitter.exceptions;
+package twitter.exceptions.custom_exceptions;
 
+/**
+ * Model for Custom Exception Message for the General Response
+ */
 public class CustomException {
 
     String errorName;
