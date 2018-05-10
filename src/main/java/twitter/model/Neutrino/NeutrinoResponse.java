@@ -2,6 +2,10 @@ package twitter.model.Neutrino;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/**
+ * Neutrino response object that returns the analysis of
+ * the Bad Words Filter API based on a submitted text.
+ */
 public class NeutrinoResponse {
     @JsonProperty("bad-words-list")
     String[] badWordsList;

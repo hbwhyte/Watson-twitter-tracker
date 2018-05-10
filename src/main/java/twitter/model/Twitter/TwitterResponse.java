@@ -1,5 +1,8 @@
 package twitter.model.Twitter;
 
+/**
+ * Main response object being returned by the Twitter API
+ */
 public class TwitterResponse {
     String query;
     Tweet[] tweets;

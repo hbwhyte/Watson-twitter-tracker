@@ -1,5 +1,9 @@
 package twitter.model.Watson;
 
+/**
+ * Watson response object analyzing the tones of the individual
+ * sentences of the text.
+ */
 public class SentencesTone {
 
     private int sentence_id;

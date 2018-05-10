@@ -1,5 +1,9 @@
 package twitter.model.Watson;
 
+/**
+ * Watson response object that is the specific tones and
+ * relative scores
+ */
 public class Tone {
 
     /**

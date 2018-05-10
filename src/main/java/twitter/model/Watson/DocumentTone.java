@@ -1,5 +1,8 @@
 package twitter.model.Watson;
 
+/**
+ * Watson response object analyzing the tone of the overall text.
+ */
 public class DocumentTone {
 
     private ToneCategory[] tone_categories;

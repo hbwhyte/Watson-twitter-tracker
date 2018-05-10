@@ -1,5 +1,8 @@
 package twitter.model.Watson;
 
+/**
+ * Main response object being returned by the Watson API
+ */
 public class WatsonResponse {
 
     private DocumentTone document_tone;

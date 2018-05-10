@@ -2,7 +2,6 @@ package twitter.exceptions.custom_exceptions;
 
 /**
  * Exception for errors caused by Bad Words Filter API
- *
  */
 public class BadWordsFilterException extends Exception {
 

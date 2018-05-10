@@ -3,13 +3,11 @@ package twitter.controllers;
 import twitter.exceptions.custom_exceptions.BadWordsFilterException;
 import twitter.exceptions.custom_exceptions.EmptySearchException;
 import twitter.model.GeneralResponse;
-import twitter.model.Twitter.TwitterResponse;
 import twitter.model.Watson.WatsonResponse;
 import twitter.services.TwitterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import twitter.services.WatsonService;
-import twitter4j.Twitter;
 import twitter4j.TwitterException;
 
 import java.io.UnsupportedEncodingException;

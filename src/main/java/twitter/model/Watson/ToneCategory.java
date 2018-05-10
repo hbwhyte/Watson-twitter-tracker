@@ -1,5 +1,8 @@
 package twitter.model.Watson;
 
+/**
+ * Watson response object of the higher level tone categories.
+ */
 public class ToneCategory {
 
     private String category_id;

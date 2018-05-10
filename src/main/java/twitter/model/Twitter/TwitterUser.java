@@ -1,5 +1,9 @@
 package twitter.model.Twitter;
 
+/**
+ * Twitter response object that collects the relevant Twitter
+ * user information
+ */
 public class TwitterUser {
 
     long id;

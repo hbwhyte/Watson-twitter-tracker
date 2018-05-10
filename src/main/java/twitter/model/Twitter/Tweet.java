@@ -1,5 +1,9 @@
 package twitter.model.Twitter;
 
+/**
+ * Twitter response object that collects the relevant information
+ * about the tweet
+ */
 public class Tweet {
     long id;
     String text;

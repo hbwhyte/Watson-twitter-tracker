@@ -2,6 +2,10 @@ package twitter.model;
 
 import org.springframework.http.HttpStatus;
 
+/**
+ * General response object that should be returned by the API regardless
+ * of a successful or failed call
+ */
 public class GeneralResponse {
 
     String status = "Success";
