@@ -283,6 +283,8 @@ public class TwitterService {
      */
 
     public String encodeHashtags(String text) throws UnsupportedEncodingException {
+        // Removes "@" which breaks Watson's ability to analyze text, even when encoded
+        text = text.replace("@","");
         try {
             text = URLEncoder.encode(text, "UTF-8");
         } catch (UnsupportedEncodingException e) {
