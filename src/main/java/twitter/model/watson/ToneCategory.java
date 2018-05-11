@@ -1,7 +1,7 @@
-package twitter.model.Watson;
+package twitter.model.watson;
 
 /**
- * Watson response object of the higher level tone categories.
+ * watson response object of the higher level tone categories.
  */
 public class ToneCategory {
 

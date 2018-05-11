@@ -9,8 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import twitter.model.Watson.Tone;
-import twitter.model.Watson.WatsonResponse;
+import twitter.model.watson.Tone;
+import twitter.model.watson.WatsonResponse;
 
 import org.apache.commons.codec.binary.Base64;
 
@@ -18,8 +18,8 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 
 /**
- * WatsonService handles the connection to the IBM Watson API, and the analysis of
- * Watson's results.
+ * WatsonService handles the connection to the IBM watson API, and the analysis of
+ * watson's results.
  */
 @Service
 public class WatsonService {
@@ -36,7 +36,7 @@ public class WatsonService {
     private String password;
 
     /**
-     * Connects to IBM Watson Tone Analyzer API with authentication grabbed from authorize()
+     * Connects to IBM watson Tone Analyzer API with authentication grabbed from authorize()
      *
      * @param textToAnalyze
      * @return WatsonResponse mapped object
@@ -56,10 +56,10 @@ public class WatsonService {
     }
 
     /**
-     * Creates the HTTP Header to authorize the IBM Watson Tone Analyzer API call
+     * Creates the HTTP Header to authorize the IBM watson Tone Analyzer API call
      *
-     * @param username IBM Watson API username
-     * @param password IBM Watson API password
+     * @param username IBM watson API username
+     * @param password IBM watson API password
      * @return HTTPHeaders for authorization
      */
     public static HttpHeaders authorize(String username, String password) {
@@ -74,7 +74,7 @@ public class WatsonService {
     }
 
     /**
-     * Evaluates the emotional aspect of the text, as per IBM Watson, and ranks which emotion
+     * Evaluates the emotional aspect of the text, as per IBM watson, and ranks which emotion
      * was most strongly demonstrated in the text.
      *
      * @param textToAnalyze String
@@ -93,12 +93,12 @@ public class WatsonService {
             }
         }
         int percentScore = (int) (biggestEmotion.getScore() * 100);
-        String analysis = "IBM Watson thinks this tweet was " + percentScore + "% " + emotionFormat(biggestEmotion.getTone_id());
+        String analysis = "IBM watson thinks this tweet was " + percentScore + "% " + emotionFormat(biggestEmotion.getTone_id());
         return analysis;
     }
 
     /**
-     * Changes the IBM Watson tone ids from nouns to adjectives.
+     * Changes the IBM watson tone ids from nouns to adjectives.
      *
      * @param emotion String getTone_id()
      * @return String of adjective and happy/sad face

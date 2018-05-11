@@ -1,7 +1,7 @@
-package twitter.model.Watson;
+package twitter.model.watson;
 
 /**
- * Watson response object analyzing the tones of the individual
+ * watson response object analyzing the tones of the individual
  * sentences of the text.
  */
 public class SentencesTone {

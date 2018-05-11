@@ -3,7 +3,7 @@ package twitter.controllers;
 import twitter.exceptions.custom_exceptions.BadWordsFilterException;
 import twitter.exceptions.custom_exceptions.EmptySearchException;
 import twitter.model.GeneralResponse;
-import twitter.model.Watson.WatsonResponse;
+import twitter.model.watson.WatsonResponse;
 import twitter.services.TwitterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -23,13 +23,14 @@ public class Controller {
     WatsonService watsonService;
 
     /**
-     * Searches Twitter for the text of the most recent tweet of the search term
+     * Searches twitter for the text of the most recent tweet of the search term
      *
-     * @param search term to search Twitter for
+     * @param search term to search twitter for
      * @return String text body of the most recent tweet. 140char limit.
      */
     @RequestMapping(method = RequestMethod.GET, value = "/")
-    public GeneralResponse searchTwitter(@RequestParam(value = "q", defaultValue = "coffee") String search) throws TwitterException, EmptySearchException {
+    public GeneralResponse searchTwitter(@RequestParam(value = "q", defaultValue = "coffee") String search)
+            throws TwitterException, EmptySearchException {
         try {
             GeneralResponse gr = new GeneralResponse();
             gr.setData(twitterService.latestTweet(search));
@@ -40,10 +41,10 @@ public class Controller {
     }
 
     /**
-     * Searches Twitter for a search term, and returns 20 popular hits in json
+     * Searches twitter for a search term, and returns 20 popular hits in JSON
      *
-     * @param search term to search Twitter for
-     * @return Twitter Response mapped object (not full json)
+     * @param search term to search twitter for
+     * @return twitter Response mapped object (not full json)
      */
     @RequestMapping(method = RequestMethod.GET, value = "/list")
     public GeneralResponse searchTwitterList(@RequestParam(value = "q", defaultValue = "coffee") String search) throws TwitterException, EmptySearchException {
@@ -53,7 +54,7 @@ public class Controller {
     }
 
     /**
-     * Posts a tweet to the @JavaRandomFun Twitter feed
+     * Posts a tweet to the @JavaRandomFun twitter feed
      *
      * @param tweet the String to be posted.
      * @return String of what was posted to twitter
@@ -66,10 +67,10 @@ public class Controller {
     }
 
     /**
-     * IBM Watson analyzes the tone of the text string.
+     * IBM watson analyzes the tone of the text string.
      *
      * @param textToAnalyze - String to be analyzed
-     * @return Watson's JSON response mapped onto a WatsonResponse POJO
+     * @return watson's JSON response mapped onto a WatsonResponse POJO
      */
     @RequestMapping(method = RequestMethod.POST, value = "/watson")
     public WatsonResponse callWatson(@RequestBody String textToAnalyze) throws UnsupportedEncodingException {
@@ -77,10 +78,10 @@ public class Controller {
     }
 
     /**
-     * IBM Watson specifically analyzes the emotional aspects of the text string
+     * IBM watson specifically analyzes the emotional aspects of the text string
      *
      * @param textToAnalyze - String to be analyzed
-     * @return String saying which emotion was the strongest, and what % Watson thought it was
+     * @return String saying which emotion was the strongest, and what % watson thought it was
      */
     @RequestMapping(method = RequestMethod.GET, value = "/emo")
     public String howEmotional(@RequestParam(value = "q", defaultValue = "blockchain") String textToAnalyze) throws UnsupportedEncodingException {
@@ -88,10 +89,10 @@ public class Controller {
     }
 
     /**
-     * IBM Watson analyzes the emotions for the most recent tweet of your search term
+     * IBM watson analyzes the emotions for the most recent tweet of your search term
      *
      * @param search term to search Twitter for
-     * @return String stating what was searched, the most recent tweet, and Watson's analysis
+     * @return String stating what was searched, the most recent tweet, and watson's analysis
      */
     @RequestMapping(method = RequestMethod.GET, value = "/analyze")
     public String analyzeTweet(@RequestParam(value = "q", defaultValue = "monzo") String search) throws TwitterException, EmptySearchException, UnsupportedEncodingException {
@@ -99,10 +100,10 @@ public class Controller {
     }
 
     /**
-     * Takes the Watson tweet analysis, and then posts it to @JavaRandomFun Twitter feed
+     * Takes the watson tweet analysis, and then posts it to @JavaRandomFun twitter feed
      *
-     * @param search term to search Twitter for
-     * @return String of what was posted to Twitter and a success message (if succesful)
+     * @param search term to search twitter for
+     * @return String of what was posted to twitter and a success message (if succesful)
      */
     @RequestMapping(method = RequestMethod.POST, value = "/analyze")
     public String postAnalysis(@RequestParam(value = "q", defaultValue = "monzo") String search)

@@ -12,10 +12,10 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import twitter.exceptions.custom_exceptions.BadWordsFilterException;
 import twitter.exceptions.custom_exceptions.EmptySearchException;
-import twitter.model.Neutrino.NeutrinoResponse;
-import twitter.model.Twitter.Tweet;
-import twitter.model.Twitter.TwitterResponse;
-import twitter.model.Twitter.TwitterUser;
+import twitter.model.neutrino.NeutrinoResponse;
+import twitter.model.twitter.Tweet;
+import twitter.model.twitter.TwitterResponse;
+import twitter.model.twitter.TwitterUser;
 import twitter4j.*;
 import twitter4j.Twitter;
 import twitter4j.conf.ConfigurationBuilder;
@@ -25,8 +25,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
 /**
- * TwitterService handles the connection to the Twitter API and the
- * methods that interact directly with Twitter or with the
+ * TwitterService handles the connection to the twitter API and the
+ * methods that interact directly with twitter or with the
  * corresponding tweets, such as the bad word filter.
  */
 @Service
@@ -52,10 +52,10 @@ public class TwitterService {
      * - Language filter
      * - Search by popular, recent, or mixed
      *
-     * @param search term to search Twitter for
+     * @param search term to search twitter for
      * @return String text of the most recent tweet
-     * @throws TwitterException     if unable to search Twitter
-     * @throws EmptySearchException if Twitter returns no results for that search term
+     * @throws TwitterException     if unable to search twitter
+     * @throws EmptySearchException if twitter returns no results for that search term
      */
     public TwitterResponse latestTweet(String search) throws TwitterException, EmptySearchException {
         // Searches for full tweet (280 chars) and enables JSON
@@ -68,13 +68,13 @@ public class TwitterService {
         // Search for 1 most recent tweet, in English
         query.count(1).lang("en").setResultType(Query.ResultType.recent);
 
-        // Search Twitter
+        // Search twitter
         try {
             result = twitter.search(query);
             // If search is successful, but there aren't any tweets for that term
             if (result.getTweets().isEmpty()) {
                 logger.info("Search complete, no results found empty");
-                throw new EmptySearchException("Sorry, not even Twitter is talking about that.");
+                throw new EmptySearchException("Sorry, not even twitter is talking about that.");
             } else {
                 logger.info("Tweet(s) found");
             }
@@ -84,8 +84,8 @@ public class TwitterService {
         }
         // Convert Twitter4j response to JSON, then maps to custom TwitterResponse
         Gson gson = new Gson();
+        System.out.println(gson.toJson(result));
         TwitterResponse response = gson.fromJson(gson.toJson(result), TwitterResponse.class);
-
         return response;
     }
 
@@ -99,10 +99,10 @@ public class TwitterService {
      * - Language filter
      * - Search by popular, recent, or mixed
      *
-     * @param search term to search Twitter for
+     * @param search term to search twitter for
      * @return TwitterResponse object that was mapped from the JSON response
-     * @throws TwitterException     if unable to search Twitter
-     * @throws EmptySearchException if Twitter returns no results for that search term
+     * @throws TwitterException     if unable to search twitter
+     * @throws EmptySearchException if twitter returns no results for that search term
      */
     public TwitterResponse searchTwitterList(String search) throws TwitterException, EmptySearchException {
         // Searches for full tweet (280 chars) and enables JSON
@@ -115,13 +115,13 @@ public class TwitterService {
         // Search for up to 20 tweets in English, with a mix of popular and most recent
         query.count(20).lang("en").setResultType(Query.ResultType.mixed);
 
-        // Search Twitter
+        // Search twitter
         try {
             result = twitter.search(query);
             // If search is successful, but there aren't any tweets for that term
             if (result.getTweets().isEmpty()) {
                 logger.info("Search complete, no results found empty");
-                throw new EmptySearchException("Sorry, not even Twitter is talking about that.");
+                throw new EmptySearchException("Sorry, not even twitter is talking about that.");
             } else {
                 logger.info("Tweet(s) found");
             }
@@ -144,16 +144,16 @@ public class TwitterService {
      * @param text String body of the tweet (280 char max)
      * @return String of the tweet
      * @throws TwitterException if tweet failed to post either because of excessive
-     *                          character limit or because of a Twitter connection issue
+     *                          character limit or because of a twitter connection issue
      */
     public Tweet createTweet(String text) throws TwitterException {
         Twitter twitter = new TwitterFactory().getInstance();
         Tweet tweet = new Tweet();
         TwitterUser user = new TwitterUser();
         Status status = null;
-        // Verify text fits Twitter's character restrictions.
+        // Verify text fits twitter's character restrictions.
         if (text.length() > 280) {
-            throw new TwitterException("Too many characters. Twitter has a 280 character limit per tweet.");
+            throw new TwitterException("Too many characters. twitter has a 280 character limit per tweet.");
         }
         // Post tweet
         try {
@@ -169,20 +169,20 @@ public class TwitterService {
         user.setId(status.getId());
         user.setName(status.getUser().getName());
         user.setScreenName(status.getUser().getScreenName());
-        tweet.setTwitterUser(user);
+        tweet.setUser(user);
 
         return tweet;
     }
 
     /**
-     * Calls latestTweet() to search Twitter for the most recent tweet of the search topic
-     * then sends it to IBM Watson through emotionAnalyzer() to analyze the emotional tone of
+     * Calls latestTweet() to search twitter for the most recent tweet of the search topic
+     * then sends it to IBM watson through emotionAnalyzer() to analyze the emotional tone of
      * that tweet
      *
-     * @param search term to search Twitter for
+     * @param search term to search twitter for
      * @return String of the tweet that was analyzed, and what the analysis was
-     * @throws TwitterException             if latestTweet() was unable to search Twitter
-     * @throws EmptySearchException         if latestTweet() found that Twitter returns
+     * @throws TwitterException             if latestTweet() was unable to search twitter
+     * @throws EmptySearchException         if latestTweet() found that twitter returns
      *                                      no results for that search term
      * @throws UnsupportedEncodingException if the character encoding is not supported
      */
@@ -195,10 +195,10 @@ public class TwitterService {
     /**
      * Takes the results of analyzeTweet(), then tweets it live as @randomJavaFun
      *
-     * @param search term to search Twitter for
+     * @param search term to search twitter for
      * @return String of what was tweeted and a success message.
-     * @throws TwitterException             if latestTweet() was unable to search Twitter
-     * @throws EmptySearchException         if latestTweet() found that Twitter returns
+     * @throws TwitterException             if latestTweet() was unable to search twitter
+     * @throws EmptySearchException         if latestTweet() found that twitter returns
      *                                      no results for that search term
      * @throws UnsupportedEncodingException if the character encoding is not supported
      * @throws BadWordsFilterException      if there was an error using the Bad Words Filter API
@@ -221,7 +221,7 @@ public class TwitterService {
     }
 
     /**
-     * Takes in a text string and runs it through Neutrino API's Bad Word Filter. Replaces
+     * Takes in a text string and runs it through neutrino API's Bad Word Filter. Replaces
      * any words from their list with a "*".
      * <p>
      * In addition to filtering the swears, the API also deletes any punctuation too, so the formatted
@@ -230,7 +230,7 @@ public class TwitterService {
      * @param text String to be sent through the Bad Word Filter
      * @return String of filtered text.
      * @throws UnsupportedEncodingException if the character encoding is not supported
-     * @throws BadWordsFilterException      if there was an issue connection the the Neutrino API
+     * @throws BadWordsFilterException      if there was an issue connection the the neutrino API
      */
     public String filterSwears(String text) throws UnsupportedEncodingException, BadWordsFilterException {
         String encodedText = encodeHashtags(text);
@@ -246,7 +246,7 @@ public class TwitterService {
     }
 
     /**
-     * Takes in a text string and runs it through Neutrino API's Bad Word Filter and identifies
+     * Takes in a text string and runs it through neutrino API's Bad Word Filter and identifies
      * whether or not there were identifiable swear words in the text.
      * <p>
      * If the call fails, it returns false so the
@@ -267,8 +267,8 @@ public class TwitterService {
             NeutrinoResponse response = restTemplate.getForObject(fQuery, NeutrinoResponse.class);
             return response.isBad();
         } catch (RestClientException e) {
-            logger.error("Error Accessing Neutrino Bad Words Filter API");
-            throw new BadWordsFilterException("Error Accessing Neutrino Bad Words Filter API, " +
+            logger.error("Error Accessing neutrino Bad Words Filter API");
+            throw new BadWordsFilterException("Error Accessing neutrino Bad Words Filter API, " +
                     "please check your credentials");
         }
     }
@@ -283,7 +283,7 @@ public class TwitterService {
      */
 
     public String encodeHashtags(String text) throws UnsupportedEncodingException {
-        // Removes "@" which breaks Watson's ability to analyze text, even when encoded
+        // Removes "@" which breaks watson's ability to analyze text, even when encoded
         text = text.replace("@", "");
         try {
             text = URLEncoder.encode(text, "UTF-8");

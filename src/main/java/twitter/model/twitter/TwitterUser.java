@@ -1,7 +1,7 @@
-package twitter.model.Twitter;
+package twitter.model.twitter;
 
 /**
- * Twitter response object that collects the relevant Twitter
+ * twitter response object that collects the relevant twitter
  * user information
  */
 public class TwitterUser {

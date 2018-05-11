@@ -1,9 +1,9 @@
-package twitter.model.Neutrino;
+package twitter.model.neutrino;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * Neutrino response object that returns the analysis of
+ * neutrino response object that returns the analysis of
  * the Bad Words Filter API based on a submitted text.
  */
 public class NeutrinoResponse {

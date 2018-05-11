@@ -1,7 +1,7 @@
-package twitter.model.Watson;
+package twitter.model.watson;
 
 /**
- * Main response object being returned by the Watson API
+ * Main response object being returned by the watson API
  */
 public class WatsonResponse {
 

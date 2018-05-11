@@ -1,7 +1,7 @@
-package twitter.model.Watson;
+package twitter.model.watson;
 
 /**
- * Watson response object analyzing the tone of the overall text.
+ * watson response object analyzing the tone of the overall text.
  */
 public class DocumentTone {
 

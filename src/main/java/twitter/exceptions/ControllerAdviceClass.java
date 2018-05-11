@@ -49,7 +49,7 @@ public class ControllerAdviceClass {
 
     /**
      * If the user is missing or has errors in any of their
-     * Twitter credentials.
+     * twitter credentials.
      *
      * @param e IllegalStateException
      * @return GeneralResponse with a failed 500 message
@@ -153,7 +153,7 @@ public class ControllerAdviceClass {
     }
 
     /**
-     * Handles any rejected requests from Twitter thrown
+     * Handles any rejected requests from twitter thrown
      * by Twitter4j's TwitterException
      *
      * @param e TwitterException
@@ -171,7 +171,7 @@ public class ControllerAdviceClass {
 
         // Create error JSON response
         CustomException error = new CustomException();
-        error.setErrorName("Twitter Exception");
+        error.setErrorName("twitter Exception");
         error.setReason(e.getMessage());
 
         gr.setError(error);
@@ -179,7 +179,7 @@ public class ControllerAdviceClass {
     }
 
     /**
-     * Handles any rejected requests from Neutrino thrown
+     * Handles any rejected requests from neutrino thrown
      * by their Bad Words Filter API
      *
      * @param e BadWordsFilterException
@@ -197,7 +197,7 @@ public class ControllerAdviceClass {
 
         // Create error JSON response
         CustomException error = new CustomException();
-        error.setErrorName("Neutrino Bad Words Filter Exception");
+        error.setErrorName("neutrino Bad Words Filter Exception");
         error.setReason(e.getMessage());
 
         gr.setError(error);

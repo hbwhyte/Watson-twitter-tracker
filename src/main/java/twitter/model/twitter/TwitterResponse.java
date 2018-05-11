@@ -1,7 +1,7 @@
-package twitter.model.Twitter;
+package twitter.model.twitter;
 
 /**
- * Main response object being returned by the Twitter API
+ * Main response object being returned by the twitter API
  */
 public class TwitterResponse {
     String query;
