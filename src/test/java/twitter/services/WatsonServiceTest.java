@@ -7,10 +7,10 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 
-import twitter.model.Watson.DocumentTone;
-import twitter.model.Watson.Tone;
-import twitter.model.Watson.ToneCategory;
-import twitter.model.Watson.WatsonResponse;
+import twitter.model.watson.DocumentTone;
+import twitter.model.watson.Tone;
+import twitter.model.watson.ToneCategory;
+import twitter.model.watson.WatsonResponse;
 
 import java.io.UnsupportedEncodingException;
 
