@@ -1,8 +1,6 @@
 # Watson Twitter Tracker
 
-Twitter has quite the reputation for being a pretty angry, screaming kind of place. Remember when, in less than a day, it turned [Tay.ai into a racist jerk](https://www.theverge.com/2016/3/24/11297050/tay-microsoft-chatbot-racist)? 
-
-But is that what it's really feeling? Let's find out!
+You might think of Twitter and think of scary news, funny cats, or angry mobs, but what is it *really* feeling? Let's find out!
 
 The **Watson Twitter Tracker** allows you to search Twitter for the most recent tweet of anything, then shoots it off to Watson to analyze the true emotions of the tweet. The emotions Watson evaluates are:
 
