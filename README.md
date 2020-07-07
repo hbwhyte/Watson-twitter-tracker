@@ -1,6 +1,8 @@
 # Watson Twitter Tracker
 
-You might think of Twitter and think of scary news, funny cats, or angry mobs, but what is it *really* feeling? Let's find out!
+You might think of Twitter and think of scary news, funny cats, or angry mobs, but what is it *really* feeling? 
+
+Let's find out!
 
 The **Watson Twitter Tracker** allows you to search Twitter for the most recent tweet of anything, then shoots it off to Watson to analyze the true emotions of the tweet. The emotions Watson evaluates are:
 
